@@ -39,3 +39,5 @@ next-env.d.ts
 /public/uploads
 public/uploads/overlay.png
 /dist
+/dist
+/dist/types
