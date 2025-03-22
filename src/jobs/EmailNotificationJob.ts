@@ -2,8 +2,7 @@ import { Job } from "./Job";
 import { Task } from "../models/Task";
 import { logger } from "../utils/logger";
 import { JobResult } from "../types/JobResult";
-import { TaskStatus } from "../workers/taskRunner";
-import { TaskType } from "../types/JobTypeMap";
+import { TaskStatus, TaskType } from "../types/JobTypeMap";
 
 export type NotificationInput = {
   recipient: string;

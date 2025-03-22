@@ -1,4 +1,5 @@
-import { Job } from "../jobs/Job";
+
+
 import {
   AnalysisInput,
   AnalysisMeta,
@@ -9,6 +10,7 @@ import {
   NotificationOutput,
   NotificationMeta,
 } from "../jobs/EmailNotificationJob";
+import { Job } from "../jobs/Job";
 import {
   PolygonInput,
   PolygonOutput,
@@ -25,6 +27,21 @@ export enum TaskType {
   PolygonArea = "polygonArea",
   EmailNotification = "emailNotification",
   DataAnalysis = "dataAnalysis",
+}
+
+export enum TaskStatus {
+  Queued = "queued",
+  InProgress = "in_progress",
+  Completed = "completed",
+  Failed = "failed",
+}
+
+export enum TaskProgressStatus {
+  StartingJob = "Starting job...",
+  ProcessingJob = "Processing job...",
+  JobCompleted = "Job completed.",
+  JobFailed = "Job failed",
+  CompletedSuccessfully = "Completed successfully",
 }
 
 export interface JobTypeMap {

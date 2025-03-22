@@ -1,10 +1,10 @@
 name: "example_workflow"
 steps:
   - stepNumber: 1
-    taskType: "analysis"
+    taskType: "dataAnalysis"
 
   - stepNumber: 2
-    taskType: "notification"
+    taskType: "emailNotification"
     dependsOn: 1
 
   - stepNumber: 3

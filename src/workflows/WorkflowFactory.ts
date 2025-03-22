@@ -3,26 +3,9 @@ import * as yaml from "js-yaml";
 import { DataSource } from "typeorm";
 import { Workflow } from "../models/Workflow";
 import { Task } from "../models/Task";
-import { TaskStatus } from "../workers/taskRunner";
-import { TaskType } from "../types/JobTypeMap";
-
-export enum WorkflowStatus {
-  Initial = "initial",
-  InProgress = "in_progress",
-  Completed = "completed",
-  Failed = "failed",
-}
-
-interface WorkflowStep {
-  taskType: TaskType;
-  stepNumber: number;
-  dependsOn?: number;
-}
-
-interface WorkflowDefinition {
-  name: string;
-  steps: WorkflowStep[];
-}
+import { isValidTaskType } from "../guards/isValidTaskType";
+import { WorkflowDefinition, WorkflowStatus } from "../types/WorkFlow";
+import { TaskStatus } from "../types/JobTypeMap";
 
 export class WorkflowFactory {
   constructor(private dataSource: DataSource) {}
@@ -51,10 +34,14 @@ export class WorkflowFactory {
   
     const savedWorkflow = await workflowRepository.save(workflow);
   
-
     const createdTasks: Task[] = [];
   
     for (const step of workflowDef.steps) {
+      // Ensure taskType is valid
+      if (!isValidTaskType(step.taskType)) {
+        throw new Error(`Invalid task type: ${step.taskType}`);
+      }
+
       const task = new Task();
       task.clientId = clientId;
       task.geoJson = geoJson;

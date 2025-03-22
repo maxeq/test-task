@@ -4,9 +4,8 @@ import booleanWithin from "@turf/boolean-within";
 import { Feature, Polygon } from "geojson";
 import countryMapping from "../data/world_data.json";
 import { JobResult } from "../types/JobResult";
-import { TaskStatus } from "../workers/taskRunner";
 import { logger } from "../utils/logger";
-import { TaskType } from "../types/JobTypeMap";
+import { TaskStatus, TaskType } from "../types/JobTypeMap";
 
 
 export type AnalysisInput = {

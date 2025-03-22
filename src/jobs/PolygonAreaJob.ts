@@ -1,10 +1,9 @@
 import { Job } from "./Job";
 import { Task } from "../models/Task";
 import { area } from "@turf/turf";
-import { TaskStatus } from "../workers/taskRunner";
 import { JobResult } from "../types/JobResult";
 import { logger } from "../utils/logger";
-import { TaskType } from "../types/JobTypeMap";
+import { TaskStatus, TaskType } from "../types/JobTypeMap";
 
 export type PolygonInput = {
   geoJson: {

@@ -2,10 +2,9 @@ import { Job } from "./Job";
 import { Task } from "../models/Task";
 import { Result } from "../models/Result";
 import { JobResult } from "../types/JobResult";
-import { TaskStatus } from "../workers/taskRunner";
 import { AppDataSource } from "../data-source";
 import { logger } from "../utils/logger";
-import { TaskType } from "../types/JobTypeMap";
+import { TaskStatus, TaskType } from "../types/JobTypeMap";
 
 export type ReportInput = {
   workflowId: string;

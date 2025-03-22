@@ -6,8 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Workflow } from './Workflow';
-import { TaskProgressStatus, TaskStatus } from '../workers/taskRunner';
-import { TaskType } from '../types/JobTypeMap';
+import { TaskProgressStatus, TaskStatus, TaskType } from '../types/JobTypeMap';
 
 
 @Entity({ name: 'tasks' })

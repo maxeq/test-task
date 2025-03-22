@@ -1,28 +1,11 @@
-// src/workers/taskRunner.ts
-
 import { Repository } from "typeorm"
 import { Task } from "../models/Task"
 import { getJobForTaskType } from "../jobs/JobFactory"
-import { WorkflowStatus } from "../workflows/WorkflowFactory"
 import { Workflow } from "../models/Workflow"
 import { Result } from "../models/Result"
 import { logger } from "../utils/logger"
-import { TaskType } from "../types/JobTypeMap";
-
-export enum TaskStatus {
-  Queued = "queued",
-  InProgress = "in_progress",
-  Completed = "completed",
-  Failed = "failed",
-}
-
-export enum TaskProgressStatus {
-  StartingJob = "Starting job...",
-  ProcessingJob = "Processing job...",
-  JobCompleted = "Job completed.",
-  JobFailed = "Job failed",
-  CompletedSuccessfully = "Completed successfully",
-}
+import { TaskProgressStatus, TaskStatus, TaskType } from "../types/JobTypeMap";
+import { WorkflowStatus } from "../types/WorkFlow"
 
 export class TaskRunner {
   constructor(private taskRepository: Repository<Task>) {}
