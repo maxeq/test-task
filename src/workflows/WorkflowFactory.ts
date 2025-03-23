@@ -68,9 +68,14 @@ export class WorkflowFactory {
       await taskRepository.save(createdTasks);
   
       return savedWorkflow;
-    } catch (error: any) {
-      logger.error(`Failed to create workflow from YAML: ${error.message}`);
-      throw new Error("Workflow creation failed.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        logger.error(`Failed to create workflow from YAML: ${error.message}`);
+        throw new Error("Workflow creation failed.");
+      } else {
+        logger.error("Unknown error occurred during workflow creation");
+        throw new Error("Unknown error occurred.");
+      }
     }
-  }
+  }    
 }  
