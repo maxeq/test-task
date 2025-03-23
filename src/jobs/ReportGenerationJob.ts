@@ -34,58 +34,64 @@ export class ReportGenerationJob
   ): Promise<JobResult<ReportInput, ReportOutput, ReportMeta>> {
     logger.info("Generating workflow report...", task.taskId);
   
-    const taskRepository = AppDataSource.getRepository(Task);
-    const resultRepository = AppDataSource.getRepository(Result);
-    const workflowRepository = AppDataSource.getRepository(task.workflow.constructor); // или просто getRepository(Workflow)
+    try {
+      const taskRepository = AppDataSource.getRepository(Task);
+      const resultRepository = AppDataSource.getRepository(Result);
+      const workflowRepository = AppDataSource.getRepository(task.workflow.constructor);
   
-    const workflowId = task.workflow.workflowId;
+      const workflowId = task.workflow.workflowId;
   
-    const tasks = await taskRepository.find({
-      where: { workflow: { workflowId } },
-      order: { stepNumber: "ASC" },
-    });
+      const tasks = await taskRepository.find({
+        where: { workflow: { workflowId } },
+        order: { stepNumber: "ASC" },
+      });
   
-    const taskSummaries: TaskSummary[] = [];
+      const taskSummaries: TaskSummary[] = [];
   
-    for (const t of tasks) {
-      if (!t.resultId) {
-        logger.warn(`Task ${t.taskId} has no result, skipping...`);
-        continue;
+      for (const t of tasks) {
+        if (!t.resultId) {
+          logger.warn(`Task ${t.taskId} has no result, skipping...`);
+          continue;
+        }
+  
+        const result = await resultRepository.findOneBy({ resultId: t.resultId });
+  
+        taskSummaries.push({
+          taskId: t.taskId,
+          type: t.taskType,
+          output: result
+            ? JSON.parse(result.data || "{}")
+            : { error: "Missing result" },
+        });
       }
   
-      const result = await resultRepository.findOneBy({ resultId: t.resultId });
+      const output: ReportOutput = {
+        tasks: taskSummaries,
+        finalReport: "Aggregated data and results",
+      };
   
-      taskSummaries.push({
-        taskId: t.taskId,
-        type: t.taskType,
-        output: result
-          ? JSON.parse(result.data || "{}")
-          : { error: "Missing result" },
-      });
+      const workflow = await workflowRepository.findOneBy({ workflowId });
+      if (workflow) {
+        workflow.finalResult = JSON.stringify(output);
+        await workflowRepository.save(workflow);
+        logger.debug("Saved finalResult to workflow", workflowId);
+      }
+  
+      task.status = TaskStatus.Completed;
+  
+      return {
+        input: { workflowId },
+        output,
+        meta: {
+          executedAt: new Date().toISOString(),
+          jobName: TaskType.ReportGeneration,
+        },
+      };
+  
+    } catch (error: unknown) {
+      logger.handleError(error, "ReportGenerationJob", task.taskId);
+      task.status = TaskStatus.Failed;
+      throw error;
     }
-  
-    const output: ReportOutput = {
-      tasks: taskSummaries,
-      finalReport: "Aggregated data and results",
-    };
-  
-
-    const workflow = await workflowRepository.findOneBy({ workflowId });
-    if (workflow) {
-      workflow.finalResult = JSON.stringify(output);
-      await workflowRepository.save(workflow);
-      logger.debug("Saved finalResult to workflow", workflowId);
-    }
-  
-    task.status = TaskStatus.Completed;
-  
-    return {
-      input: { workflowId },
-      output,
-      meta: {
-        executedAt: new Date().toISOString(),
-        jobName: TaskType.ReportGeneration
-      },
-    };
   }
-}
+}  

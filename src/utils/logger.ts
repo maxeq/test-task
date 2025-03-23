@@ -32,4 +32,8 @@ export const logger = {
   debug: (message: string, taskId?: string) => {
     console.debug(formatMessage("debug", message, taskId));
   },
+  handleError: (error: unknown, context?: string, taskId?: string) => {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error(`Error in ${context ?? "unknown"}: ${message}`, taskId);
+  },
 };

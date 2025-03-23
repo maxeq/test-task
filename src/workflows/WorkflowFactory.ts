@@ -7,7 +7,6 @@ import { isValidTaskType } from "../guards/isValidTaskType";
 import { WorkflowDefinition, WorkflowStatus } from "../types/WorkFlow";
 import { TaskStatus } from "../types/JobTypeMap";
 import { logger } from "../utils/logger";
-import { handleError } from "../utils/handleError";
 
 export class WorkflowFactory {
   constructor(private dataSource: DataSource) {}
@@ -70,7 +69,7 @@ export class WorkflowFactory {
   
       return savedWorkflow;
     } catch (error: unknown) {
-      handleError(error, "WorkflowFactory");
+      logger.handleError(error, "WorkflowFactory");
       throw error;
     }
   }    
