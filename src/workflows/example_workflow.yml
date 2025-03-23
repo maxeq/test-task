@@ -8,9 +8,9 @@ steps:
     dependsOn: 1
 
   - stepNumber: 3
-    taskType: "reportGeneration"
+    taskType: "emailNotification"
     dependsOn: 2
 
   - stepNumber: 4
-    taskType: "emailNotification"
+    taskType: "reportGeneration"
     dependsOn: 3

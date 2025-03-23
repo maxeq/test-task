@@ -15,32 +15,31 @@ export async function taskWorker() {
       const tasks = await taskRepository.find({
         where: { status: TaskStatus.Queued },
         relations: ["workflow", "dependsOnTask"],
-        order: { stepNumber: "ASC" } 
+        order: { stepNumber: "ASC" }
       });
-      
+
       const readyTask = tasks.find(
-        (task) => !task.dependsOnTask || task.dependsOnTask.status === TaskStatus.Completed
+        (task) =>
+          !task.dependsOnTask ||
+          task.dependsOnTask.status === TaskStatus.Completed
       );
-      
+
       if (readyTask) {
         logger.info(`Found ready task. Type: ${readyTask.taskType}`, readyTask.taskId);
-      
+
         try {
           await taskRunner.run(readyTask);
           logger.info("Task completed (or failed). Status updated.", readyTask.taskId);
         } catch (error) {
-          logger.error("Task execution failed. TaskRunner already updated status.", readyTask.taskId);
-          logger.error((error as Error).stack || String(error), readyTask.taskId);
+          logger.handleError(error, "taskWorker", readyTask.taskId);
         }
       } else {
         logger.debug("No ready-to-run tasks found.");
       }
-      
-      // wait before next check
+
       await new Promise((resolve) => setTimeout(resolve, 5000));
     } catch (err) {
-      logger.error("Unexpected error inside task worker loop");
-      logger.error((err as Error).stack || String(err));
+      logger.handleError(err, "taskWorker");
     }
   }
 }

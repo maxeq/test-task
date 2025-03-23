@@ -39,7 +39,6 @@ export class WorkflowFactory {
   
       for (const step of workflowDef.steps) {
         if (!isValidTaskType(step.taskType)) {
-          logger.error(`Invalid task type: ${step.taskType}`);
           throw new Error(`Invalid task type: ${step.taskType}`);
         }
   

@@ -33,7 +33,7 @@ export class PolygonAreaJob
     try {
       geoJson = JSON.parse(task.geoJson);
     } catch (err) {
-      logger.error("Failed to parse geoJson", task.taskId);
+      logger.handleError("Failed to parse geoJson", task.taskId);
       task.status = TaskStatus.Failed;
       return {
         input: { geoJson },
