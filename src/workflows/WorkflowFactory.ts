@@ -23,52 +23,54 @@ export class WorkflowFactory {
     clientId: string,
     geoJson: string
   ): Promise<Workflow> {
-    const fileContent = fs.readFileSync(filePath, "utf8");
-    const workflowDef = yaml.load(fileContent) as WorkflowDefinition;
+    try {
+      const fileContent = fs.readFileSync(filePath, "utf8");
+      const workflowDef = yaml.load(fileContent) as WorkflowDefinition;
   
-    const workflowRepository = this.dataSource.getRepository(Workflow);
-    const taskRepository = this.dataSource.getRepository(Task);
+      const workflowRepository = this.dataSource.getRepository(Workflow);
+      const taskRepository = this.dataSource.getRepository(Task);
   
-    const workflow = new Workflow();
-    workflow.clientId = clientId;
-    workflow.status = WorkflowStatus.Initial;
+      const workflow = new Workflow();
+      workflow.clientId = clientId;
+      workflow.status = WorkflowStatus.Initial;
+      const savedWorkflow = await workflowRepository.save(workflow);
   
-    const savedWorkflow = await workflowRepository.save(workflow);
+      const createdTasks: Task[] = [];
   
-    const createdTasks: Task[] = [];
+      for (const step of workflowDef.steps) {
+        if (!isValidTaskType(step.taskType)) {
+          logger.error(`Invalid task type: ${step.taskType}`);
+          throw new Error(`Invalid task type: ${step.taskType}`);
+        }
   
-    for (const step of workflowDef.steps) {
-      // Ensure taskType is valid
-
-      if (!isValidTaskType(step.taskType)) {
-        logger.error(`Invalid task type: ${step.taskType}`);
-        throw new Error(`Invalid task type: ${step.taskType}`);
+        const task = new Task();
+        task.clientId = clientId;
+        task.geoJson = geoJson;
+        task.status = TaskStatus.Queued;
+        task.taskType = step.taskType;
+        task.stepNumber = step.stepNumber;
+        task.workflow = savedWorkflow;
+        createdTasks.push(task);
       }
-
-      const task = new Task();
-      task.clientId = clientId;
-      task.geoJson = geoJson;
-      task.status = TaskStatus.Queued;
-      task.taskType = step.taskType;
-      task.stepNumber = step.stepNumber;
-      task.workflow = savedWorkflow;
-      createdTasks.push(task);
-    }
-
-    await taskRepository.save(createdTasks);
-
-    for (const step of workflowDef.steps) {
-      if (step.dependsOn) {
-        const currentTask = createdTasks.find(t => t.stepNumber === step.stepNumber);
-        const dependsOnTask = createdTasks.find(t => t.stepNumber === step.dependsOn);
-        if (currentTask && dependsOnTask) {
-          currentTask.dependsOnTask = dependsOnTask;
+  
+      await taskRepository.save(createdTasks);
+  
+      for (const step of workflowDef.steps) {
+        if (step.dependsOn) {
+          const currentTask = createdTasks.find(t => t.stepNumber === step.stepNumber);
+          const dependsOnTask = createdTasks.find(t => t.stepNumber === step.dependsOn);
+          if (currentTask && dependsOnTask) {
+            currentTask.dependsOnTask = dependsOnTask;
+          }
         }
       }
+  
+      await taskRepository.save(createdTasks);
+  
+      return savedWorkflow;
+    } catch (error: any) {
+      logger.error(`Failed to create workflow from YAML: ${error.message}`);
+      throw new Error("Workflow creation failed.");
     }
-  
-    await taskRepository.save(createdTasks);
-  
-    return savedWorkflow;
   }
-}
+}  
