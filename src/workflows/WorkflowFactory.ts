@@ -6,6 +6,7 @@ import { Task } from "../models/Task";
 import { isValidTaskType } from "../guards/isValidTaskType";
 import { WorkflowDefinition, WorkflowStatus } from "../types/WorkFlow";
 import { TaskStatus } from "../types/JobTypeMap";
+import { logger } from "../utils/logger";
 
 export class WorkflowFactory {
   constructor(private dataSource: DataSource) {}
@@ -38,7 +39,9 @@ export class WorkflowFactory {
   
     for (const step of workflowDef.steps) {
       // Ensure taskType is valid
+
       if (!isValidTaskType(step.taskType)) {
+        logger.error(`Invalid task type: ${step.taskType}`);
         throw new Error(`Invalid task type: ${step.taskType}`);
       }
 
