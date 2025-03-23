@@ -7,6 +7,7 @@ import { isValidTaskType } from "../guards/isValidTaskType";
 import { WorkflowDefinition, WorkflowStatus } from "../types/WorkFlow";
 import { TaskStatus } from "../types/JobTypeMap";
 import { logger } from "../utils/logger";
+import { handleError } from "../utils/handleError";
 
 export class WorkflowFactory {
   constructor(private dataSource: DataSource) {}
@@ -69,13 +70,8 @@ export class WorkflowFactory {
   
       return savedWorkflow;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        logger.error(`Failed to create workflow from YAML: ${error.message}`);
-        throw new Error("Workflow creation failed.");
-      } else {
-        logger.error("Unknown error occurred during workflow creation");
-        throw new Error("Unknown error occurred.");
-      }
+      handleError(error, "WorkflowFactory");
+      throw error;
     }
   }    
 }  
