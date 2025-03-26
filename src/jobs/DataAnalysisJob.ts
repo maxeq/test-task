@@ -1,4 +1,3 @@
-// Import necessary modules and types
 import { Job } from "./Job";
 import { Task } from "../models/Task";
 import booleanWithin from "@turf/boolean-within"; // Library to check if a geometry is within another geometry

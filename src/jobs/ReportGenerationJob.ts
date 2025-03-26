@@ -6,6 +6,9 @@ import { AppDataSource } from "../data-source";
 import { logger } from "../utils/logger";
 import { TaskStatus, TaskType } from "../types/JobTypeMap";
 import { Workflow } from "../models/Workflow";
+import { AnalysisOutput } from "./DataAnalysisJob";
+import { PolygonOutput } from "./PolygonAreaJob";
+import { NotificationOutput } from "./EmailNotificationJob";
 
 // Define the input structure for the Report Generation Job
 export type ReportInput = {
@@ -16,7 +19,7 @@ export type ReportInput = {
 export type TaskSummary = {
   taskId: string;  // The task identifier
   type: string;    // The type of the task
-  output: unknown; // The output of the task, could be any type
+  output: AnalysisOutput | PolygonOutput | ReportOutput | NotificationOutput; 
 };
 
 // Define the output structure for the report generation job
